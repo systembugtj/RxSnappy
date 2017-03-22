@@ -43,7 +43,7 @@ dependencies {
 }
 
 
-def libraryGroupId = 'com.conouch.persiste'
+def libraryGroupId = 'com.conouch.persistence'
 def libraryArtifactId = 'rx-snappy'
 def libraryVersion = VERSION_NAME
 
