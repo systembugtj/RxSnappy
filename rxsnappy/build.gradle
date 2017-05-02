@@ -1,21 +1,18 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.jfrog.artifactory'
-apply plugin: 'maven-publish'
+apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.github.dcendents.android-maven'
 
-def repo_context_url = hasProperty('artifactory_context_url') ? artifactory_context_url : System.getenv('artifactory_context_url')
-def repo_username = hasProperty('artifactory_username') ? artifactory_username : System.getenv('artifactory_username')
-def repo_password = hasProperty('artifactory_password') ? artifactory_password : System.getenv('artifactory_password')
-def repo_key = hasProperty('artifactory_key') ? artifactory_key : System.getenv('artifactory_key')
-def VERSION_NAME = System.getenv('BUILD_NUMBER') ? System.getenv('BUILD_NUMBER') : "1.0.1"
+group='com.github.systembugtj'
+version="1.1.1"
 
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
     }
@@ -25,55 +22,26 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+
+
+    //RxJava2
+    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
+
+    compile 'com.github.systembugtj:snappydb:2.0.1'
+    compile 'com.google.code.gson:gson:2.8.0'
+
     testCompile 'junit:junit:4.12'
-
-    compile "io.reactivex:rxjava:1.2.1"
-    compile 'com.snappydb:snappydb-lib:0.5.2'
-    compile 'com.esotericsoftware.kryo:kryo:2.24.0'
-    compile 'com.google.code.gson:gson:2.5'
-
+    testCompile 'com.android.support.test:runner:0.5'
     androidTestCompile 'com.squareup.okhttp:mockwebserver:2.6.0'
-    androidTestCompile 'com.squareup.retrofit:retrofit:1.9.0'
-    androidTestCompile 'com.squareup.okhttp:okhttp:2.6.0'
-}
-
-
-def libraryGroupId = 'com.conouch.persistence'
-def libraryArtifactId = 'rx-snappy'
-def libraryVersion = VERSION_NAME
-
-publishing {
-    publications {
-        aar(MavenPublication) {
-            groupId libraryGroupId
-            version libraryVersion
-            artifactId libraryArtifactId
-
-            artifact("$buildDir/outputs/aar/${project.name}-release.aar")
-        }
-    }
-}
-
-artifactory {
-    contextUrl = repo_context_url
-    publish {
-        repository {
-            repoKey = repo_key
-
-            username = repo_username
-            password = repo_password
-        }
-        defaults {
-            publications('aar')
-            publishArtifacts = true
-
-            properties = ['qa.level': 'basic', 'q.os': 'android', 'dev.team': 'core']
-            publishPom = true
-        }
-    }
+    androidTestCompile 'com.squareup.retrofit2:retrofit:2.2.0'
+    androidTestCompile 'com.squareup.okhttp3:okhttp:3.7.0'
+    androidTestCompile 'com.android.support.test:runner:0.5'
 }
