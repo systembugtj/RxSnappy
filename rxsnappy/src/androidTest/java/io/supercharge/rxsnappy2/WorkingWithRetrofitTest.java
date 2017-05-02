@@ -2,16 +2,23 @@ package io.supercharge.rxsnappy2;
 
 import android.test.AndroidTestCase;
 import android.support.test.filters.SmallTest;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.MockWebServer;
+
+import com.google.gson.Gson;
+
+import java.net.Inet4Address;
+import java.net.InetAddress;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import io.supercharge.rxsnappy2.mock.DataGenerator;
 import io.supercharge.rxsnappy2.mock.DummyData;
 
+import okhttp3.OkHttpClient;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
@@ -25,12 +32,12 @@ public class WorkingWithRetrofitTest extends AndroidTestCase {
     MockWebServer mockWebServer;
     RxSnappyClient rxSnappyClient;
     TestRestAdapter testRestAdapter;
+    Gson gson;
 
     private interface TestRestAdapter {
 
         @POST("/{brand}")
         Observable<DummyData> getDummyData(@Header("Auth") String token, @Body DummyData requestData);
-
     }
 
 
@@ -40,10 +47,13 @@ public class WorkingWithRetrofitTest extends AndroidTestCase {
         RxSnappy.init(getContext());
         mockWebServer = new MockWebServer();
         mockWebServer.start(9812);
+        gson = new Gson();
 
         OkHttpClient okHttpClient = new OkHttpClient();
         Retrofit restAdapter = new Retrofit.Builder()
-                .baseUrl(mockWebServer.getUrl("/").toString())
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .baseUrl(mockWebServer.url("/").toString())
                 .build();
 
         testRestAdapter = restAdapter.create(TestRestAdapter.class);
